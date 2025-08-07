@@ -1,4 +1,4 @@
-#O3 census tract data
+#O3 county data
 
 #Packages
 ##lubridate - package with added date-time capabilities beyond base R
@@ -7,21 +7,25 @@
 ##parallel - support for parallel computation
 ##sf - supports simple features, a standardized way to encode spatial vector data
 
-library(dplyr)
+install.packages("lubridate")
+install.packages("tidyverse")
+install.packages("parallel")
+install.packages("abind")
+install.packages("terra")
+install.packages("sp")
+install.packages("stars")
+install.packages("tigris")
+install.packages("exactextractr")
+install.packages("leaflet")
+
 library(lubridate)
 library(tidyverse) #dplyr, ggplot2, stringr 
 library(parallel)
-install.packages("abind")
 library(abind)
-install.packages("terra")
 library(terra)
-install.packages("sp")
 library(sp)
-install.packages("stars")
 library(stars) #sf
-install.packages("tigris")
 library(tigris)
-install.packages("exactextractr")
 library(exactextractr)
 library(raster)
 install.packages("leaflet")
@@ -96,10 +100,15 @@ urlchar <- as.character(dat_download)
 spatdata <- read_stars(urlchar)
 rastdata <- rast(spatdata)
 
+#Build dashboard here?
+#might need to append raster data from rastdata to last table below
+plot(rastdata)
+
 #Bringing in county files and extract using exactextractr package
 counties <- counties()
 terra1 <- exact_extract(rastdata, counties, 
                         include_cols = c("STATEFP", "COUNTYFP", "GEOID", "NAMELSAD"))
+
 
 #value: value of the intersecting raster cells
 #coverage_fraction: fraction of intersecting area relative to full raster grid
@@ -149,7 +158,10 @@ spat_table_long_3 <- spat_table_long_2 %>%
 #converting datetime values from chr to POSIXCT
 spat_table_long_3$datetime <- with_tz(as.POSIXct(spat_table_long_3$datetime, tz = "UTC"), tzone = "America/New_York")
 
-leaflet() %>%
-  addTiles()
   
+typeof(spatdata)
+
+leaflet(rastdata) %>%
+  addProviderTiles("CartoDB")
+
 
